@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
 
-concurrency:                                         # 1
+concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
@@ -22,22 +22,24 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter analyze
-      - run: flutter test --coverage --exclude-tags golden   # 2
-      - uses: actions/upload-artifact@v4                      # 3
+      - run: flutter test --coverage --exclude-tags golden
+      - uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: app/coverage/lcov.info
+      - name: Test du secret
+        run: echo "Le secret vaut ${{ secrets.MON_SECRET }}"
 
-  build:                                                      # 4
-    needs: test                                               # 5
-    if: github.ref == 'refs/heads/main'                       # 6
+  build:
+    needs: test
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: app
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4                           # 7
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
@@ -46,8 +48,8 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: flutter build apk --release                      # 8
-      - uses: actions/upload-artifact@v4                      # 9
+      - run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
         with:
           name: apk
           path: app/build/app/outputs/flutter-apk/app-release.apk
