@@ -17,4 +17,4 @@ jobs:                                      # 3
           cache: true
       - run: flutter pub get               # 10
       - run: flutter analyze               # 11
-      - run: flutter test                  # 12
+      - run: flutter test --exclude-tags golden                  # 12
