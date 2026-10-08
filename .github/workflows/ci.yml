@@ -53,3 +53,11 @@ jobs:
         with:
           name: apk
           path: app/build/app/outputs/flutter-apk/app-release.apk
+
+      - uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SA }}
+          groups: testeurs
+          file: app/build/app/outputs/flutter-apk/app-release.apk
+          releaseNotes: "Build automatique du commit ${{ github.sha }}"
