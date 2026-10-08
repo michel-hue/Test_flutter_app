@@ -16,7 +16,7 @@ void main() {
     await tester.pumpWidget(const MyApp());
 
     // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
+    expect(find.text('23456789'), findsOneWidget);
     expect(find.text('356'), findsNothing);
 
     // Tap the '+' icon and trigger a frame.
@@ -25,6 +25,6 @@ void main() {
 
     // Verify that our counter has incremented.
     expect(find.text('2000'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('345678'), findsOneWidget);
   });
 }
