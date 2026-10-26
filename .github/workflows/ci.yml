@@ -1,12 +1,18 @@
 name: CI
+
 on:
   pull_request:
   push:
     branches: [main]
-#
-#concurrency:
-#  group: ${{ github.workflow }}-${{ github.ref }}
-#  cancel-in-progress: true
+
+# Deux push rapprochés sur la même branche : on annule l'ancienne exécution.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Le workflow lit le code, sans pouvoir le modifier.
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -15,20 +21,29 @@ jobs:
       run:
         working-directory: app
     steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
-      - run: flutter pub get
-      - run: flutter analyze
-      - run: flutter test --coverage --exclude-tags golden
-      - uses: actions/upload-artifact@v4
+
+      - name: Télécharger les packages
+        run: flutter pub get
+
+      - name: Analyser le code
+        run: flutter analyze
+
+      - name: Lancer les tests
+        run: flutter test --coverage --exclude-tags golden
+
+      - name: Garder le rapport de couverture
+        uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: app/coverage/lcov.info
-      - name: Test du secret
-        run: echo "Le secret vaut ${{ secrets.MON_SECRET }}"
 
   build:
     needs: test
@@ -38,26 +53,58 @@ jobs:
       run:
         working-directory: app
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Java 17
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-      - uses: subosito/flutter-action@v2
+
+      - name: Installer Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
-      - run: flutter pub get
-      - run: flutter build apk --release
-      - uses: actions/upload-artifact@v4
+
+      - name: Télécharger les packages
+        run: flutter pub get
+
+      # Signature : on recrée le keystore à partir des secrets, le temps du job.
+      - name: Recréer le keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: echo "$KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+
+      - name: Écrire key.properties
+        env:
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          cat > android/key.properties <<EOF
+          storePassword=$STORE_PASSWORD
+          keyPassword=$KEY_PASSWORD
+          keyAlias=$KEY_ALIAS
+          storeFile=upload-keystore.jks
+          EOF
+
+
+      - name: Construire l'APK
+        run: flutter build apk --release --build-number=${{ github.run_number }}
+
+      - name: Garder l'APK (plan B)
+        uses: actions/upload-artifact@v4
         with:
           name: apk
           path: app/build/app/outputs/flutter-apk/app-release.apk
 
-      - uses: wzieba/Firebase-Distribution-Github-Action@v1
+      - name: Envoyer aux testeurs (Firebase App Distribution)
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SA }}
           groups: testeurs
           file: app/build/app/outputs/flutter-apk/app-release.apk
-          releaseNotes: "Build automatique du commit ${{ github.sha }}"
+          releaseNotes: "Build n° ${{ github.run_number }}, commit ${{ github.sha }}"
