@@ -2,6 +2,7 @@ import 'package:app/logic/dates.dart';
 import 'package:app/logic/todo_list.dart';
 import 'package:app/theme/app_theme.dart';
 import 'package:app/widgets/boutons.dart';
+import 'package:app/widgets/logo.dart';
 import 'package:flutter/material.dart';
 
 /// Page d'accueil : logo, slogan, carte « Aujourd'hui » avec la progression.
@@ -53,9 +54,8 @@ class AccueilPage extends StatelessWidget {
                     largeur: 72,
                     hauteur: 72,
                     rayon: 22,
-                    accent: true,
                     tooltip: 'Ouvrir mes tâches',
-                    child: const Icon(Icons.check, size: 40),
+                    child: const LogoMark(key: Key('logo_accueil'), taille: 44),
                   ),
                   const SizedBox(height: 20),
                   Text(

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<defs>
+  <mask id="coche" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+    <rect x="0" y="0" width="1024" height="1024" fill="#FFFFFF"/>
+    <path d="M 305 500 L 472 668 L 720 368" fill="none" stroke="#000000" stroke-width="142" stroke-linecap="round" stroke-linejoin="round"/>
+  </mask>
+</defs>
+<circle cx="512" cy="512" r="460" fill="#FF6B57" mask="url(#coche)"/>
+</svg>

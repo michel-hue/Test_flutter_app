@@ -78,6 +78,21 @@ void main() {
     expect(find.text('Aucune tâche'), findsOneWidget);
   });
 
+  testWidgets('Le logo de l’accueil ouvre « Mes tâches »', (tester) async {
+    // Préparer
+    await tester.pumpWidget(const MyTodoApp());
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('logo_accueil')), findsOneWidget);
+
+    // Agir
+    await tester.tap(find.byKey(const Key('logo_accueil')));
+    await tester.pumpAndSettle();
+
+    // Vérifier
+    expect(find.text('Mes tâches'), findsOneWidget);
+    expect(find.text('Aucune tâche'), findsOneWidget);
+  });
+
   testWidgets('Le bouton soleil / lune passe au thème clair', (tester) async {
     // Préparer
     await tester.pumpWidget(const MyTodoApp());
