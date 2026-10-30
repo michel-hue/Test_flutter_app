@@ -54,7 +54,7 @@ class AccueilPage extends StatelessWidget {
                     largeur: 72,
                     hauteur: 72,
                     rayon: 22,
-                    tooltip: 'Ouvrir mes tâches',
+                    tooltip: 'Ouvrir Tâches',
                     child: const LogoMark(key: Key('logo_accueil'), taille: 44),
                   ),
                   const SizedBox(height: 20),
