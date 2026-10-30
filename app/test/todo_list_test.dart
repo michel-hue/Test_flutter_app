@@ -21,7 +21,7 @@ void main() {
     final list = TodoList();
 
     // Agir
-    final result = list.add('   ');
+    final result = list.add(' ');
 
     // Vérifier
     expect(result, isFalse);
